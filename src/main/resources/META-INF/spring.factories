@@ -1,0 +1,3 @@
+org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
+  com.iamazy.springcloud.audit.configuration.LayoutConfiguration,\
+  com.iamazy.springcloud.audit.configuration.AuditConfiguration
