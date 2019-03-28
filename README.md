@@ -42,7 +42,7 @@
       3) fromLeft:int 从左边若干字符起隐藏所有字符
       4) fromRight:int 从右边若干字符起隐藏所有字符
    b. IgnoreAudit: 将停止对该函数，该字段的审计功能
-   c. Audit: 对类，函数，参数进行审计（未完成）
+   c. Audit: 对类，函数，参数进行审计
    注: 这些注解可以搭配使用
 4. 搭配审计开关
    在application.properties中输入audit.enabled=true,审计功能才会开启，审计功能默认是关闭的
