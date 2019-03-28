@@ -9,20 +9,6 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 /**
- * Copyright 2018-2019 iamazy Logic Ltd
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @author iamazy
  * @date 2019/1/11
  * @descrition
@@ -55,7 +41,7 @@ public class AuditEvent implements Serializable {
      */
     public Integer status;
 
-    private List<Field> fields;
+    private byte[] fields;
 
     /**
      * 用户请求的Web Url
@@ -69,9 +55,7 @@ public class AuditEvent implements Serializable {
 
     private Method method;
 
-    private Object[] args;
-
-    private Object result;
+    private byte[] result;
 
     private String userAgent;
 
@@ -83,9 +67,7 @@ public class AuditEvent implements Serializable {
 
     @Override
     public int hashCode() {
-        int result1 = Objects.hash(uuid, actor, serverIp, clientIp, action, startTime, endTime, status, fields, url, userAgent , clazz, method, result);
-        result1 = 31 * result1 + Arrays.hashCode(args);
-        return result1;
+        return Objects.hash(uuid, actor, serverIp, clientIp, action, startTime, endTime, status, fields, url, userAgent , clazz, method, result);
     }
 
     public static class Builder{
@@ -100,13 +82,13 @@ public class AuditEvent implements Serializable {
             return this;
         }
 
-        public Builder args(Object[] args){
-            event.setArgs(args);
+        public Builder result(byte[] result){
+            event.setResult(result);
             return this;
         }
 
-        public Builder result(Object result){
-            event.setResult(result);
+        public Builder fields(byte[] fields){
+            event.setFields(fields);
             return this;
         }
 

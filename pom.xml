@@ -8,9 +8,9 @@
         <version>2.1.1.RELEASE</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.wsn.springcloud.audit</groupId>
+    <groupId>com.iamazy.springcloud.audit</groupId>
     <artifactId>audit-spring-cloud-starter</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <name>audit-spring-cloud-starter</name>
     <description>系统审计组件</description>
 
@@ -67,6 +67,12 @@
             <groupId>com.github.jknack</groupId>
             <artifactId>handlebars</artifactId>
             <version>4.1.2</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/com.google.crypto.tink/tink -->
+        <dependency>
+            <groupId>com.google.crypto.tink</groupId>
+            <artifactId>tink</artifactId>
+            <version>1.2.2</version>
         </dependency>
 
         <!-- https://mvnrepository.com/artifact/javax.enterprise/cdi-api -->

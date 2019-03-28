@@ -1,8 +1,10 @@
 package com.iamazy.springcloud.audit.utils;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.iamazy.springcloud.audit.cons.CoreConstants;
+import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
 
 /**
  * @author iamazy
@@ -10,21 +12,28 @@ import com.fasterxml.jackson.databind.ObjectMapper;
  **/
 public class JsonUtils {
 
-    private static ObjectMapper objectMapper=new ObjectMapper()
-            .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
 
     private JsonUtils(){}
 
     public static String object2Json(Object object){
         try {
-            return objectMapper.writeValueAsString(object);
+            return CoreConstants.OBJECT_MAPPER.writeValueAsString(object);
         } catch (JsonProcessingException e) {
-            return null;
+            return StringUtils.EMPTY;
         }
     }
 
+    public static boolean isJsonValid(Object o) {
+        try {
+            CoreConstants.OBJECT_MAPPER.readTree(o.toString());
+            return true;
+        } catch (IOException e) {
+            return false;
+        }
+    }
 
     public static <T> T o2o(Object fromValue,Class<T> toValueType){
-        return objectMapper.convertValue(fromValue,toValueType);
+        return CoreConstants.OBJECT_MAPPER.convertValue(fromValue,toValueType);
     }
 }

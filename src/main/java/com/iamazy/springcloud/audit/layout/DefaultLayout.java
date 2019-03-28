@@ -3,29 +3,17 @@ package com.iamazy.springcloud.audit.layout;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import com.github.jknack.handlebars.io.TemplateSource;
+import com.iamazy.springcloud.audit.cons.CoreConstants;
 import com.iamazy.springcloud.audit.model.AuditEvent;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.util.Objects;
 
 /**
- * Copyright 2018-2019 iamazy Logic Ltd
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @author iamazy
  * @date 2019/1/11
  * @descrition
@@ -47,10 +35,12 @@ public class DefaultLayout implements Layout {
             "Action: {{ action }}\n"+
             "Class: {{ clazz }}\n"+
             "Method: {{ method }}\n"+
-            "Args: {{#each args }} {{ this }} {{/each}}\n"+
+            "Args: {{ fields }}\n"+
             "Result: {{ result }}\n"+
             "Status: {{ status }}\n"+
             "=========================={{ endTime }} End =====================================\n";
+
+    private String dateFormat= CoreConstants.DEFAULT_DATE_FORMAT;
 
     private TemplateSource source;
 
@@ -67,6 +57,9 @@ public class DefaultLayout implements Layout {
         try {
             Template template;
             if(!Objects.isNull(source)){
+                handlebars.setPrettyPrint(true);
+                handlebars.setCharset(Charset.forName("UTF-8"));
+                handlebars.setStringParams(true);
                 template=handlebars.compile(source);
             }else {
                 template = handlebars.compileInline(DEFAULT_TEMPLATE);

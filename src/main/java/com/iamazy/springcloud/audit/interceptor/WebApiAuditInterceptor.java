@@ -1,13 +1,15 @@
 package com.iamazy.springcloud.audit.interceptor;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.iamazy.springcloud.audit.annotation.DeIdentify;
-import com.iamazy.springcloud.audit.annotation.IgnoreAudit;
 import com.iamazy.springcloud.audit.annotation.DeIdentifyUtils;
+import com.iamazy.springcloud.audit.annotation.IgnoreAudit;
+import com.iamazy.springcloud.audit.configuration.IAuditOutput;
+import com.iamazy.springcloud.audit.model.AuditEvent;
+import com.iamazy.springcloud.audit.model.Field;
+import com.iamazy.springcloud.audit.utils.SpringUtils;
 import com.iamazy.springcloud.audit.cons.CoreConstants;
 import com.iamazy.springcloud.audit.cons.LoginUserInfoHolder;
-import com.iamazy.springcloud.audit.layout.Layout;
-import com.iamazy.springcloud.audit.model.AuditEvent;
-import com.iamazy.springcloud.audit.utils.SpringUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.aspectj.lang.JoinPoint;
@@ -31,20 +33,6 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Copyright 2018-2019 iamazy Logic Ltd
- * <p>
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
  * @author iamazy
  * @date 2019/1/11
  * @descrition
@@ -53,10 +41,11 @@ import java.util.UUID;
 @Aspect
 public class WebApiAuditInterceptor {
 
-    private Layout layout;
 
-    public WebApiAuditInterceptor(Layout layout) {
-        this.layout = layout;
+    private IAuditOutput auditOutput;
+
+    public WebApiAuditInterceptor(IAuditOutput auditOutput) {
+        this.auditOutput = auditOutput;
     }
 
     private AuditEvent.Builder builder = new AuditEvent.Builder();
@@ -64,7 +53,7 @@ public class WebApiAuditInterceptor {
 
     private MethodSignature signature;
 
-    @Pointcut("execution(public * *(..))&&@annotation(com.iamazy.springcloud.audit.annotation.Audit)")
+    @Pointcut("(execution(public * *(..))&&@annotation(com.iamazy.springcloud.audit.annotation.Audit))||@within(com.iamazy.springcloud.audit.annotation.Audit)")
     public void auditPointCut() {
     }
 
@@ -95,7 +84,7 @@ public class WebApiAuditInterceptor {
     }
 
     @AfterReturning(returning = "result", pointcut = "auditPointCut()")
-    public void afterExecute(JoinPoint joinPoint, Object result) {
+    public void afterExecute(JoinPoint joinPoint, Object result) throws JsonProcessingException {
         builder.endTime(dateFormat.format(System.currentTimeMillis()));
 
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
@@ -109,7 +98,7 @@ public class WebApiAuditInterceptor {
         }
 
         //获取切面函数结果
-        builder.result(result.toString());
+        builder.result(CoreConstants.OBJECT_MAPPER.writeValueAsBytes(result));
         try {
             builder.serverIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
@@ -118,26 +107,33 @@ public class WebApiAuditInterceptor {
 
         final Parameter[] parameters = signature.getMethod().getParameters();
         final Object[] args = joinPoint.getArgs();
-        List<Object> argsList = new ArrayList<>(0);
+        List<Field> argsList = new ArrayList<>(0);
         for (int i = 0; i < parameters.length; i++) {
             final IgnoreAudit ignoreAudit = parameters[i].getAnnotation(IgnoreAudit.class);
             if (ignoreAudit != null) {
                 continue;
             }
             final DeIdentify deIdentify = parameters[i].getAnnotation(DeIdentify.class);
-            if (deIdentify == null) {
-                continue;
+            if (deIdentify != null&&args[i]!=null) {
+                if (parameters[i].getType().getName().equals(String.class.getCanonicalName())) {
+                    args[i] = DeIdentifyUtils.deIdentify(args[i].toString(), deIdentify.left(), deIdentify.right(), deIdentify.fromLeft(), deIdentify.fromRight());
+                }
             }
-            if (parameters[i].getType().getName().equals(String.class.getCanonicalName())) {
-                args[i] = DeIdentifyUtils.deIdentify(args[i].toString(), deIdentify.left(), deIdentify.right(), deIdentify.fromLeft(), deIdentify.fromRight());
+            Field field=new Field();
+            field.setName(parameters[i].getName());
+            field.setType(parameters[i].getType().getTypeName());
+            if(args[i]==null){
+                field.setValue(null);
+            }else {
+                field.setValue(args[i].toString().getBytes());
             }
-            argsList.add(args[i]);
+            argsList.add(field);
         }
-        builder.args(argsList.toArray());
+        builder.fields(CoreConstants.OBJECT_MAPPER.writeValueAsBytes(argsList));
         AuditEvent auditEvent = builder.build();
         final IgnoreAudit ignoreAudit = signature.getMethod().getAnnotation(IgnoreAudit.class);
         if (ignoreAudit == null) {
-            log.info(layout.format(auditEvent));
+            auditOutput.output(auditEvent);
         }
     }
 
