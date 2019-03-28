@@ -133,17 +133,5 @@
         </plugins>
     </build>
 
-    <distributionManagement>
-        <repository>
-            <id>wsn-releases</id>
-            <name>Releases</name>
-            <url>http://10.10.2.199:8081/repository/wsn-releases/</url>
-        </repository>
-        <snapshotRepository>
-            <id>wsn-snapshots</id>
-            <name>Snapshots</name>
-            <url>http://10.10.2.199:8081/repository/wsn-snapshots/</url>
-        </snapshotRepository>
-    </distributionManagement>
 
 </project>
