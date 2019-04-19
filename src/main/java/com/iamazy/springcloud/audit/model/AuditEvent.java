@@ -32,16 +32,16 @@ public class AuditEvent implements Serializable {
      */
     public String action;
 
-    public String startTime;
+    public long startTime;
 
-    public String endTime;
+    public long endTime;
 
     /**
      * 请求 成功:1 或 失败:0, 是Web Api时就是返回的状态码
      */
     public Integer status;
 
-    private byte[] fields;
+    private String fields;
 
     /**
      * 用户请求的Web Url
@@ -55,7 +55,7 @@ public class AuditEvent implements Serializable {
 
     private Method method;
 
-    private byte[] result;
+    private String result;
 
     private String userAgent;
 
@@ -82,12 +82,12 @@ public class AuditEvent implements Serializable {
             return this;
         }
 
-        public Builder result(byte[] result){
+        public Builder result(String result){
             event.setResult(result);
             return this;
         }
 
-        public Builder fields(byte[] fields){
+        public Builder fields(String fields){
             event.setFields(fields);
             return this;
         }
@@ -97,7 +97,7 @@ public class AuditEvent implements Serializable {
             return this;
         }
 
-        public Builder startTime(String startTime){
+        public Builder startTime(long startTime){
             event.setStartTime(startTime);
             return this;
         }
@@ -127,7 +127,7 @@ public class AuditEvent implements Serializable {
             return this;
         }
 
-        public Builder endTime(String endTime){
+        public Builder endTime(long endTime){
             event.setEndTime(endTime);
             return this;
         }

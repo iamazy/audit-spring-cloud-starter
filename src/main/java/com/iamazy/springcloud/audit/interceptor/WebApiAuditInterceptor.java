@@ -26,7 +26,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
-import java.text.SimpleDateFormat;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -49,7 +49,6 @@ public class WebApiAuditInterceptor {
     }
 
     private AuditEvent.Builder builder = new AuditEvent.Builder();
-    private SimpleDateFormat dateFormat = new SimpleDateFormat(CoreConstants.DEFAULT_DATE_FORMAT);
 
     private MethodSignature signature;
 
@@ -59,7 +58,7 @@ public class WebApiAuditInterceptor {
 
     @Before("auditPointCut()")
     public void beforeExecute(JoinPoint joinPoint) {
-        builder.startTime(dateFormat.format(System.currentTimeMillis()));
+        builder.startTime(System.currentTimeMillis());
         signature = (MethodSignature) joinPoint.getSignature();
         Method method = signature.getMethod();
         //获取切面函数的参数列表
@@ -85,7 +84,7 @@ public class WebApiAuditInterceptor {
 
     @AfterReturning(returning = "result", pointcut = "auditPointCut()")
     public void afterExecute(JoinPoint joinPoint, Object result) throws JsonProcessingException {
-        builder.endTime(dateFormat.format(System.currentTimeMillis()));
+        builder.endTime(System.currentTimeMillis());
 
         HttpServletRequest request = ((ServletRequestAttributes) Objects.requireNonNull(RequestContextHolder.getRequestAttributes())).getRequest();
         HttpServletResponse response = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getResponse();
@@ -98,7 +97,7 @@ public class WebApiAuditInterceptor {
         }
 
         //获取切面函数结果
-        builder.result(CoreConstants.OBJECT_MAPPER.writeValueAsBytes(result));
+        builder.result(CoreConstants.OBJECT_MAPPER.writeValueAsString(result));
         try {
             builder.serverIp(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e) {
@@ -125,11 +124,11 @@ public class WebApiAuditInterceptor {
             if(args[i]==null){
                 field.setValue(null);
             }else {
-                field.setValue(args[i].toString().getBytes());
+                field.setValue(args[i].toString());
             }
             argsList.add(field);
         }
-        builder.fields(CoreConstants.OBJECT_MAPPER.writeValueAsBytes(argsList));
+        builder.fields(CoreConstants.OBJECT_MAPPER.writeValueAsString(argsList));
         AuditEvent auditEvent = builder.build();
         final IgnoreAudit ignoreAudit = signature.getMethod().getAnnotation(IgnoreAudit.class);
         if (ignoreAudit == null) {

@@ -21,11 +21,11 @@ public class Field implements Serializable {
 
     private String name;
 
-    private byte[] value;
+    private String value;
 
     private String type;
 
-    public Field(String name, byte[] value){
+    public Field(String name, String value){
         this.name=name;
         this.value=value;
         this.type=value.getClass().getName();

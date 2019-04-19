@@ -10,7 +10,7 @@
     </parent>
     <groupId>com.iamazy.springcloud.audit</groupId>
     <artifactId>audit-spring-cloud-starter</artifactId>
-    <version>0.0.2-SNAPSHOT</version>
+    <version>0.0.3-SNAPSHOT</version>
     <name>audit-spring-cloud-starter</name>
     <description>系统审计组件</description>
 
@@ -132,6 +132,17 @@
             </plugin>
         </plugins>
     </build>
-
+    <distributionManagement>
+        <repository>
+            <id>wsn-releases</id>
+            <name>Releases</name>
+            <url>http://10.10.2.199:8081/repository/wsn-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>wsn-snapshots</id>
+            <name>Snapshots</name>
+            <url>http://10.10.2.199:8081/repository/wsn-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
 
 </project>
